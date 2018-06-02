@@ -16,9 +16,10 @@ public class UsersActivity extends AppCompatActivity {
         setContentView(R.layout.activity_users);
 
         mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.users_appbar);
+        setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle("All Users");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        setSupportActionBar(mToolbar);
+
         mUsersList = (RecyclerView)findViewById(R.id.users_list);
 
     }
