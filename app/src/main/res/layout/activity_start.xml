@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@drawable/background"
+    android:layout_height="match_parent"
+    tools:context=".StartActivity">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="146dp"
+        android:text="Welcome to \n    CHATein"
+        android:textColor="#ffffff"
+        android:textSize="30sp" />
+
+    <Button
+        android:id="@+id/start_reg_btn"
+        android:layout_width="243dp"
+        android:layout_height="71dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="100dp"
+        android:background="@color/colorPrimary"
+        android:text="NEED A NEW ACCOUNT ?"
+        android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/start_login_btn"
+        android:layout_width="236dp"
+        android:layout_height="71dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="203dp"
+        android:background="@color/colorAccent"
+        android:text="ALREADY HAVE ACCOUNT" />
+</RelativeLayout>
