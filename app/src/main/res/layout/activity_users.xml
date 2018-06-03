@@ -9,10 +9,8 @@
     <include
         android:id="@+id/users_appbar"
         layout="@layout/app_bar_layout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -32,5 +30,5 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/users_appbar"
-        app:layout_constraintVertical_bias="0.0"></android.support.v7.widget.RecyclerView>
+        app:layout_constraintVertical_bias="0.0" />
 </android.support.constraint.ConstraintLayout>

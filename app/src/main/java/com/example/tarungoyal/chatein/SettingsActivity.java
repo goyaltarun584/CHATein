@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -26,189 +27,179 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 
-import java.io.File;
-
 import de.hdodenhof.circleimageview.CircleImageView;
-
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private DatabaseReference mUserDatabase;
+    //Firebase Database Instance.
+    private DatabaseReference mUserDataBase;
+
+    //Firebase User Instance.
     private FirebaseUser mCurrentUser;
 
+    private StorageReference mImageStorage;
 
-    //Android Layout
-
+    //Widgets Instance variables.
     private CircleImageView mDisplayImage;
     private TextView mName;
     private TextView mStatus;
-
-    private Button mStatusBtn;
-    private Button mImageBtn;
-
+    private CircleImageView mThumb_Image;
+    private Button mChangeStatus;
+    private Button mChangeImgBtn;
 
     private static final int GALLERY_PICK = 1;
 
-    // Storage Firebase
-    private StorageReference mImageStorage;
-
     private ProgressDialog mProgressDialog;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
+        //Finding Widgets with their Unique Id's
         mDisplayImage = (CircleImageView) findViewById(R.id.settings_image);
         mName = (TextView) findViewById(R.id.settings_display_name);
         mStatus = (TextView) findViewById(R.id.settings_status);
+        mChangeStatus = (Button) findViewById(R.id.settings_status_button);
+        mChangeImgBtn = (Button) findViewById(R.id.settings_image_button);
 
-        mStatusBtn = (Button) findViewById(R.id.settings_status_button);
-        mImageBtn = (Button) findViewById(R.id.settings_image_button);
-
-        mImageStorage = FirebaseStorage.getInstance().getReference();
-
+        //Getting The Instance of Current User.
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
 
+        //Getting The UID of the Current User.
         String current_uid = mCurrentUser.getUid();
 
+        //Getting the Storage Reference from the FirebaseStorage.
+        mImageStorage = FirebaseStorage.getInstance().getReference();
 
+        //Populating the RealTimeDatabase with USERS --> UID.
+        mUserDataBase = FirebaseDatabase.getInstance().getReference().child("Users").child(current_uid);
 
-        mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(current_uid);
-
-
-        mUserDatabase.addValueEventListener(new ValueEventListener() {
+        //Setting Up An ValueEventListener.
+        mUserDataBase.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
+                //Getting The Values(Child of USERS) and storing them in a String.
                 String name = dataSnapshot.child("name").getValue().toString();
-                final String image = dataSnapshot.child("image").getValue().toString();
-                String status = dataSnapshot.child("status").getValue().toString();
+                String user_image = dataSnapshot.child("user_image").getValue().toString();
                 String thumb_image = dataSnapshot.child("thumb_image").getValue().toString();
+                String status = dataSnapshot.child("status").getValue().toString();
 
+                //Setting up in the UI.
                 mName.setText(name);
                 mStatus.setText(status);
 
-                if(!image.equals("default")) {
-
-                    Picasso.get().load(image).into(mDisplayImage);
-
-                }
-
+                Picasso.get().load(user_image).into(mDisplayImage);
 
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
 
-
-        mStatusBtn.setOnClickListener(new View.OnClickListener() {
+        //Setting up an OnClickListener on Change Status Button.
+        mChangeStatus.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
 
-                String status_value = mStatus.getText().toString();
+                //Getting the status from the realtime database and storing it in a string.
+                String status_display = mStatus.getText().toString();
 
-                Intent status_intent = new Intent(SettingsActivity.this, StatusActivity.class);
-                status_intent.putExtra("status_value", status_value);
-                startActivity(status_intent);
+                //Making an Intent to Move the user to SettingsActivity --> StatusActivity.
+                Intent changestatusIntent = new Intent(SettingsActivity.this , StatusActivity.class);
+                changestatusIntent.putExtra("status_value" , status_display);
+                startActivity(changestatusIntent);
 
             }
         });
 
-
-        mImageBtn.setOnClickListener(new View.OnClickListener() {
+        //Setting up an OnClickListener on an ImageButton.
+        mChangeImgBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
 
-
+                //Using an Intent to get all the images from the gallery.
                 Intent galleryIntent = new Intent();
+
+                //Setting up the path of the image source.
                 galleryIntent.setType("image/*");
+
+                //Getting the content(images) from the above path.
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
 
-                startActivityForResult(Intent.createChooser(galleryIntent, "SELECT IMAGE"), GALLERY_PICK);
-
-
-                /*
-                CropImage.activity()
-                        .setGuidelines(CropImageView.Guidelines.ON)
-                        .start(SettingsActivity.this);
-                        */
+                //Returning the Activity with a result(selected Image).
+                startActivityForResult(Intent.createChooser(galleryIntent , "SELECT IMAGE") , GALLERY_PICK);
 
             }
         });
-
 
     }
 
+    //Overriding a Method to get the result.
     @Override
-    protected void onActivityResult(int requestCode, final int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == GALLERY_PICK && resultCode == RESULT_OK){
+        //Checking if the selected image is true or not and the result is Ok or not.
+        if (requestCode == GALLERY_PICK && resultCode == RESULT_OK){
 
+            //Getting the Data of the Image and saving it in a Uri.
             Uri imageUri = data.getData();
 
-            CropImage.activity(imageUri)
-                    .setAspectRatio(1, 1)
-                    .start(this);
-
-            //Toast.makeText(SettingsActivity.this, imageUri, Toast.LENGTH_LONG).show();
+            //Instantiating the cropImage feature and setting the ratio in 1:1.
+            CropImage.activity(imageUri).setAspectRatio(1 , 1)
+                    .start(SettingsActivity.this);
 
         }
 
-
+        //Checking if the image is cropped or not.
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
 
-            final CropImage.ActivityResult result = CropImage.getActivityResult(data);
-
+            //Checking if the result is Ok or not, if yes we will store the image in a uri.
             if (resultCode == RESULT_OK) {
 
-
                 mProgressDialog = new ProgressDialog(SettingsActivity.this);
-                mProgressDialog.setTitle("Uploading Image...");
-                mProgressDialog.setMessage("Please wait while we upload and process the image.");
+
+                mProgressDialog.setTitle("Uploading Image");
+                mProgressDialog.setMessage("Please Wait While We Upload Your Image");
                 mProgressDialog.setCanceledOnTouchOutside(false);
                 mProgressDialog.show();
 
-
                 Uri resultUri = result.getUri();
 
-                File thumb_filePath = new File(resultUri.getPath());
+                //Getting the Current UID of the User and storing it in a String.
+                final String uid_img = mCurrentUser.getUid();
 
-                String current_user_id = mCurrentUser.getUid();
+                //Saving the image in the Firebase Storage and naming the child with the UID.
+                final StorageReference filepath = mImageStorage.child("profile_images").child(uid_img+".jpg");
 
+                //If the resultUri is nor Empty or NULL.
+                if (resultUri != null) {
 
+                    //We Will setup an OnCompleteListener to store the image in the desired location in the storage.
+                    filepath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
 
+                            //If the task is Successful we will display a toast.
+                            if (task.isSuccessful()){
 
+                                mImageStorage.child("profile_images").child("user_image.jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
 
-                StorageReference filepath = mImageStorage.child("profile_images").child(current_user_id + ".jpg");
-                final StorageReference thumb_filepath = mImageStorage.child("profile_images").child("thumbs").child(current_user_id + ".jpg");
+                                        String downloadUrl = uri.toString();
 
-
-
-                filepath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                        if(task.isSuccessful()){
-
-                            @SuppressWarnings("VisibleForTests")final String download_url = task.getResult().toString();
-                            mUserDatabase.child("image").setValue(download_url).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        mUserDataBase.child("user_image").setValue(downloadUrl).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
 
-                                                if(task.isSuccessful()){
+                                                if (task.isSuccessful()){
 
-                                                    mProgressDialog.dismiss();
-                                                    Toast.makeText(SettingsActivity.this, "Success Uploading.", Toast.LENGTH_LONG).show();
-
-                                                }else {
-
-                                                    Toast.makeText(SettingsActivity.this, "Error in uploading.", Toast.LENGTH_LONG).show();
                                                     mProgressDialog.dismiss();
 
                                                 }
@@ -216,22 +207,32 @@ public class SettingsActivity extends AppCompatActivity {
                                             }
                                         });
 
-                            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-
-                                  Exception error = result.getError();
-
                                     }
+                                });
+
+
+                            }else {
+
+                                Toast.makeText(SettingsActivity.this , "Error" , Toast.LENGTH_LONG).show();
+
+                                mProgressDialog.dismiss();
+
+                            }
+                        }
+                    });
+                }
+
+                //If the task is not successful then we will display an Error Message.
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+
+            }
         }
 
-
-    });
-
-
-
-
-
-
-}
-        }
     }
+
 }
+
+
+
+

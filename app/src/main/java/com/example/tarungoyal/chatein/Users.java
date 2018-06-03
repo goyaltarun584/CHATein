@@ -5,9 +5,23 @@ public class Users {
     public String name;
     public String image;
     public String status;
+    public String thumb_image;
 
     public Users(){
 
+    }
+
+    public String getThumb_image() {
+        return thumb_image;
+    }
+
+    public void setThumb_image(String thumb_image) {
+        this.thumb_image = thumb_image;
+    }
+
+    public Users(String thumb_image) {
+
+        this.thumb_image = thumb_image;
     }
 
     public Users(String name, String image, String status) {
@@ -16,7 +30,7 @@ public class Users {
         this.status = status;
     }
 
-    public String getName() {
+    public static String getName() {
 
         return name;
     }

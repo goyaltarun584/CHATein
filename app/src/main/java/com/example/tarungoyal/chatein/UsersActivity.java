@@ -1,9 +1,11 @@
 package com.example.tarungoyal.chatein;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,28 +16,38 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.squareup.picasso.Picasso;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UsersActivity extends AppCompatActivity {
 
-    private android.support.v7.widget.Toolbar mToolbar;
+    private Toolbar mToolbar;
+
     private RecyclerView mUsersList;
+
     private DatabaseReference mUsersDatabase;
 
+    private LinearLayoutManager mLayoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_users);
 
-        mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.users_appbar);
+
         setSupportActionBar(mToolbar);
+
         getSupportActionBar().setTitle("All Users");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
 
-        mUsersList = (RecyclerView)findViewById(R.id.users_list);
+        mLayoutManager = new LinearLayoutManager(this);
+
+        mUsersList = (RecyclerView) findViewById(R.id.users_list);
         mUsersList.setHasFixedSize(true);
-        mUsersList.setLayoutManager(new LinearLayoutManager(this));
+        mUsersList.setLayoutManager(mLayoutManager);
 
 
     }
@@ -86,9 +98,47 @@ public class UsersActivity extends AppCompatActivity {
             mView = itemView;
         }
         public void setName(String name){
-
-            TextView userNameView = mView.findViewById(R.id.user_single_name);
+            TextView userNameView = (TextView) mView.findViewById(R.id.user_single_name);
             userNameView.setText(name);
-            }
+        }
     }
+
+
+    public static class UsersViewHolder extends RecyclerView.ViewHolder {
+
+        View mView;
+
+        public UsersViewHolder(View itemView) {
+            super(itemView);
+
+            mView = itemView;
+
+        }
+
+        public void setDisplayName(String name){
+
+            TextView userNameView = (TextView) mView.findViewById(R.id.user_single_name);
+            userNameView.setText(name);
+
+        }
+
+        public void setUserStatus(String status){
+
+            TextView userStatusView = (TextView) mView.findViewById(R.id.user_single_status);
+            userStatusView.setText(status);
+
+
+        }
+
+        public void setUserImage(String thumb_image, Context ctx){
+
+            CircleImageView userImageView = (CircleImageView) mView.findViewById(R.id.user_single_image);
+
+            Picasso.get().load(thumb_image).placeholder(R.drawable.default_avatar).into(userImageView);
+
+        }
+
+
+    }
+
 }
