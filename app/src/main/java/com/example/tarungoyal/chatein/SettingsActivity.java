@@ -90,7 +90,9 @@ public class SettingsActivity extends AppCompatActivity {
                 mName.setText(name);
                 mStatus.setText(status);
 
-                Picasso.get().load(user_image).into(mDisplayImage);
+                if(!user_image.equals("default")) {
+                    Picasso.get().load(user_image).into(mDisplayImage);
+                }
 
             }
 

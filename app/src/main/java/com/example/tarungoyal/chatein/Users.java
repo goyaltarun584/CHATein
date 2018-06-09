@@ -30,9 +30,9 @@ public class Users {
         this.status = status;
     }
 
-    public static String getName() {
-
+    public String getName() {
         return name;
+
     }
 
     public void setName(String name) {
