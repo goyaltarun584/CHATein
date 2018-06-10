@@ -34,6 +34,7 @@ public class UsersActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_users);
+        mToolbar= (Toolbar)findViewById(R.id.users_appbar);
 
 
         setSupportActionBar(mToolbar);
