@@ -1,5 +1,6 @@
 package com.example.tarungoyal.chatein;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -86,7 +87,21 @@ public class UsersActivity extends AppCompatActivity {
                 // Bind the Chat object to the ChatHolder
                 holder.setName(model.name);
                 holder.setStatus(model.status);
+                holder.setUserImage(model.thumb_image);
                 // ...
+
+                final String user_id = getRef(position).getKey();
+               UserViewHolder.mView.setOnClickListener(new View.OnClickListener() {
+                   @Override
+                   public void onClick(View v) {
+
+
+
+                       Intent profileIntent = new Intent(UsersActivity.this,ProfileActivity.class);
+                       profileIntent.putExtra("user_id",user_id);
+                       startActivity(profileIntent);
+                   }
+               });
             }
 
 
@@ -97,7 +112,7 @@ public class UsersActivity extends AppCompatActivity {
     }
 
     public static class UserViewHolder extends RecyclerView.ViewHolder {
-        View mView;
+        static View mView;
         UserViewHolder(View itemView) {
             super(itemView);
             mView = itemView;

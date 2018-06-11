@@ -1,9 +1,9 @@
 package com.example.tarungoyal.chatein;
 
 import android.app.ProgressDialog;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -45,13 +45,14 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-
+        mCurrent_user = FirebaseAuth.getInstance().getCurrentUser();
         final String user_id = getIntent().getStringExtra("user_id");
+
 
         mUsersDatabase= FirebaseDatabase.getInstance().getReference().child("Users").child(user_id);
         mFriendReqDatabase = FirebaseDatabase.getInstance().getReference().child("Friend_req");
         mFriendDatabase = FirebaseDatabase.getInstance().getReference().child("Friends");
-        mCurrent_user = FirebaseAuth.getInstance().getCurrentUser();
+
 
          mProfileImage = (ImageView)findViewById(R.id.profile_image);
          mProfileName = (TextView)findViewById(R.id.profile_DisplayName);
