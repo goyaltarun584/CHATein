@@ -1,6 +1,5 @@
 package com.example.tarungoyal.chatein;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -29,24 +28,25 @@ public class UsersActivity extends AppCompatActivity {
     private DatabaseReference mUsersDatabase;
 
     private LinearLayoutManager mLayoutManager;
+    private FirebaseRecyclerAdapter<Users,UserViewHolder> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_users);
-        mToolbar= (Toolbar)findViewById(R.id.users_appbar);
-
+        mToolbar = (Toolbar)findViewById(R.id.users_appbar);
 
         setSupportActionBar(mToolbar);
-
         getSupportActionBar().setTitle("All Users");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
 
         mUsersDatabase = FirebaseDatabase.getInstance().getReference().child("Users");
 
         mLayoutManager = new LinearLayoutManager(this);
 
-        mUsersList = (RecyclerView) findViewById(R.id.users_list);
+        mUsersList = findViewById(R.id.users_list);
         mUsersList.setHasFixedSize(true);
         mUsersList.setLayoutManager(mLayoutManager);
 
@@ -59,16 +59,17 @@ public class UsersActivity extends AppCompatActivity {
         startListening();
 
     }
+
     public void startListening(){
         Query query = FirebaseDatabase.getInstance()
                 .getReference()
                 .child("Users")
                 .limitToLast(50);
 
-        FirebaseRecyclerOptions<Users> options =
-                new FirebaseRecyclerOptions.Builder<Users>()
-                        .setQuery(query, Users.class)
-                        .build();
+        FirebaseRecyclerOptions options =
+                new FirebaseRecyclerOptions.Builder<Users>().setQuery(query, Users.class).build();
+
+
         FirebaseRecyclerAdapter adapter = new FirebaseRecyclerAdapter<Users, UserViewHolder>(options) {
             @Override
             public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -84,8 +85,11 @@ public class UsersActivity extends AppCompatActivity {
             protected void onBindViewHolder(UserViewHolder holder, int position, Users model) {
                 // Bind the Chat object to the ChatHolder
                 holder.setName(model.name);
+                holder.setStatus(model.status);
                 // ...
             }
+
+
 
         };
         mUsersList.setAdapter(adapter);
@@ -94,7 +98,7 @@ public class UsersActivity extends AppCompatActivity {
 
     public static class UserViewHolder extends RecyclerView.ViewHolder {
         View mView;
-        public UserViewHolder(View itemView) {
+        UserViewHolder(View itemView) {
             super(itemView);
             mView = itemView;
         }
@@ -102,44 +106,20 @@ public class UsersActivity extends AppCompatActivity {
             TextView userNameView = (TextView) mView.findViewById(R.id.user_single_name);
             userNameView.setText(name);
         }
-    }
-
-
-    public static class UsersViewHolder extends RecyclerView.ViewHolder {
-
-        View mView;
-
-        public UsersViewHolder(View itemView) {
-            super(itemView);
-
-            mView = itemView;
-
-        }
-
-        public void setDisplayName(String name){
-
-            TextView userNameView = (TextView) mView.findViewById(R.id.user_single_name);
-            userNameView.setText(name);
-
-        }
-
-        public void setUserStatus(String status){
+        public void setStatus(String status){
 
             TextView userStatusView = (TextView) mView.findViewById(R.id.user_single_status);
             userStatusView.setText(status);
 
+            }
 
-        }
-
-        public void setUserImage(String thumb_image, Context ctx){
+        public void setUserImage(String thumb_image){
 
             CircleImageView userImageView = (CircleImageView) mView.findViewById(R.id.user_single_image);
 
             Picasso.get().load(thumb_image).placeholder(R.drawable.default_avatar).into(userImageView);
 
         }
-
-
     }
 
 }
