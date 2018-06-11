@@ -57,12 +57,12 @@
         android:text="@string/send_friend_request" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/mDeclinebtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:backgroundTint="@color/colorAccent"
         android:layout_marginBottom="20dp"
+        android:backgroundTint="@color/colorAccent"
         android:text="@string/decline_friend_request" />
 </RelativeLayout>

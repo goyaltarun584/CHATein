@@ -12,6 +12,8 @@ import android.view.MenuItem;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private android.support.v7.widget.Toolbar mToolbar;
     private ViewPager mViewPager;
     private SectionsPagerAdaptor mSectionsPagerAdaptor;
+    private DatabaseReference mUserRef;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -28,18 +31,22 @@ public class MainActivity extends AppCompatActivity {
 
         mViewPager = (ViewPager)findViewById(R.id.main_tabPager);
         mSectionsPagerAdaptor = new SectionsPagerAdaptor(getSupportFragmentManager());
-
+        mAuth = FirebaseAuth.getInstance();
         mViewPager.setAdapter(mSectionsPagerAdaptor);
 
-        TabLayout mTabLayout = (TabLayout) findViewById(R.id.main_tabs);
+        if(mAuth.getCurrentUser() != null) {
+            mUserRef = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid());
 
-        mTabLayout.setupWithViewPager(mViewPager);
 
-        mToolbar =  (android.support.v7.widget.Toolbar)findViewById(R.id.main_page_toolbar);
-        setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle("CHATein");
+            TabLayout mTabLayout = (TabLayout) findViewById(R.id.main_tabs);
 
-        mAuth = FirebaseAuth.getInstance();
+            mTabLayout.setupWithViewPager(mViewPager);
+
+            mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.main_page_toolbar);
+            setSupportActionBar(mToolbar);
+            getSupportActionBar().setTitle("CHATein");
+        }
+
     }
 
     @Override
@@ -50,8 +57,18 @@ public class MainActivity extends AppCompatActivity {
 
         if (currentUser==null){
             SendtoStart();
+        }else{
+            mUserRef.child("online").setValue(true);
         }
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mAuth.getCurrentUser() != null) {
+            mUserRef.child("online").setValue(false);
+        }
     }
 
     private void SendtoStart(){
