@@ -2,16 +2,14 @@ package com.example.tarungoyal.chatein;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -20,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.HashMap;
 
@@ -91,11 +90,14 @@ public class RegisterActivity extends AppCompatActivity {
 
                   mDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
 
+                  String device_token = FirebaseInstanceId.getInstance().getToken();
+
                   HashMap<String , String> userMap = new HashMap<>();
                   userMap.put("name",display_name);
                   userMap.put("status","Hi There! I am using CHATein App");
                   userMap.put("image","default");
                   userMap.put("thumb_image","default");
+                  userMap.put("device_token",device_token);
 
                   mDatabase.setValue(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                       @Override

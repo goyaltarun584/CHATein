@@ -3,6 +3,7 @@ package com.example.tarungoyal.chatein;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -10,9 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -24,6 +23,8 @@ import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -37,6 +38,8 @@ public class ProfileActivity extends AppCompatActivity {
     private FirebaseUser mCurrent_user;
     private DatabaseReference mFriendDatabase;
 
+    private DatabaseReference mRootRef;
+
 
 
 
@@ -47,6 +50,8 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         mCurrent_user = FirebaseAuth.getInstance().getCurrentUser();
         final String user_id = getIntent().getStringExtra("user_id");
+
+        mRootRef = FirebaseDatabase.getInstance().getReference();
 
 
         mUsersDatabase= FirebaseDatabase.getInstance().getReference().child("Users").child(user_id);
@@ -148,26 +153,27 @@ public class ProfileActivity extends AppCompatActivity {
 
                 if(mcurrent_state.equals("not_friends")){
 
-                    mFriendReqDatabase.child(mCurrent_user.getUid()).child(user_id).child("request_type").setValue("sent").addOnCompleteListener(new OnCompleteListener<Void>() {
+                    DatabaseReference newNotificationRef = mRootRef.child("notifications").child(user_id).push();
+                    String newNotificationID = newNotificationRef.getKey();
+
+                    HashMap<String,String> notificationData = new HashMap<>();
+                    notificationData.put("from",mCurrent_user.getUid());
+                    notificationData.put("type","request");
+
+                    Map requestMap = new HashMap();
+                    requestMap.put("Friend_req/"+ mCurrent_user.getUid() + "/" + user_id + "request_type" ,"sent");
+                    requestMap.put("Friend_req/"+ user_id+"/" + mCurrent_user.getUid() + "request_type","received");
+                    requestMap.put("notifications/" + user_id + "/" + newNotificationID, notificationData);
+
+                    mRootRef.updateChildren(requestMap, new DatabaseReference.CompletionListener() {
                         @Override
-                        public void onComplete(@NonNull Task<Void> task) {
+                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
 
 
-                            if(task.isSuccessful()){
-
-                                mFriendReqDatabase.child(user_id).child(mCurrent_user.getUid()).child("request_type")
-                                        .setValue("received").addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        mProfileSendRequestBtn.setEnabled(true);
-                                        mcurrent_state = "req_sent";
-                                        mProfileSendRequestBtn.setText("CANCEL FRIEND REQUEST");
-                                        //Toast.makeText(ProfileActivity.this, "Request sent successfully", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }else{
-                                Toast.makeText(ProfileActivity.this, "Failed sending request", Toast.LENGTH_SHORT).show();
+                            if(databaseError!=null){
+                                Toast.makeText(ProfileActivity.this, "There was some error in sending request", Toast.LENGTH_SHORT).show();
                             }
+
                         }
                     });
                 }
