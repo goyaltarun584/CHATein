@@ -19,5 +19,6 @@
     <string name="decline_friend_request">DECLINE FRIEND REQUEST</string>
     <string name="display_name">Display Name</string>
     <string name="last_seen">Last Seen</string>
+    <string name="your_message">Your message</string>
 
 </resources>
