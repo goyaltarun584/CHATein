@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(mAuth.getCurrentUser() != null) {
             mUserRef = FirebaseDatabase.getInstance().getReference().child("Users").child(mAuth.getCurrentUser().getUid());
+        }
 
 
             TabLayout mTabLayout = (TabLayout) findViewById(R.id.main_tabs);
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
             mToolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.main_page_toolbar);
             setSupportActionBar(mToolbar);
             getSupportActionBar().setTitle("CHATein");
-        }
+
 
     }
 
